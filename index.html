@@ -1,0 +1,914 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Reverse Engineering -- Yifeng Huang</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<!-- <link rel="stylesheet" href="css/theme/league.css"> -->
+		<link rel="stylesheet" href="css/theme/laravel.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<!-- <link rel="stylesheet" href="lib/css/zenburn.css"> -->
+		<link rel="stylesheet" href="lib/css/monokai-sublime.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+		<style>
+			/* custom style */
+			.col-wrap {
+				display: flex;
+				justify-content: space-between;
+			}
+			.col-wrap aside {
+				/*border: 1px solid;*/
+				margin: 15px;
+				flex-grow: 1;
+			    flex-basis: 0;
+			}
+
+		</style>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section data-charset="iso-8859-15" class="stack past" hidden="" aria-hidden="true">
+				    <section class="">
+				        <h1 id="reverse-engineering">Reverse Engineering</h1>
+				        <p><img src="imgs/ITUlogo.png" alt="center 100%"></p>
+				        <h5 id="presenter-yifeng-huang">Presenter: Yifeng Huang</h5>
+				        <h6 id="89980">89980</h6>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <h2 id="my-background">My Background</h2>
+				        <ul>
+				            <li>Software Engineering</li>
+				            <li>Web Development(mainly Front-end. Back-end &amp; Mobile)</li>
+				            <li>Github: <a href="https://github.com/winddweb">https://github.com/winddweb</a></li>
+				        </ul>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" hidden="" aria-hidden="true">
+				    <section class="">
+				        <p>I learned an idom that says...</p>
+				        <h2 id="elephant-in-the-room">elephant in the room</h2>
+				        <aside class="notes">
+				            <p>I hope everyone knows what it means. For those who don't, let me tell you it means </p>
+				            <blockquote>
+				                <p>A very large issue that everyone is acutely aware of, but nobody wants to talk about.</p>
+				            </blockquote>
+				        </aside>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <h2 id="reverse-engineering-is-the-elephant-in-the-room-element-class-fragment-" class="fragment visible" data-fragment-index="0">Reverse Engineering is the elephant in the room <!-- --></h2>
+				        <h3 id="we-cannot-just-ignore-reverse-engineering-element-class-fragment-" class="fragment visible" data-fragment-index="1">We cannot just ignore Reverse Engineering <!-- --></h3>
+				        <aside class="notes">
+				            <p>Do you know how easy that I can just modify a software and put it on the web, give it to others for free, and when they use the software, it will send a copy to my server whatever they did. As a developer we need to understand how we can take advantage of reverse engineering and protect from reverse engineering.</p>
+				        </aside>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <h2 id="before-we-talk-about">Before we talk about</h2>
+				        <h2 id="reverse-engineering">Reverse Engineering</h2>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" hidden="" aria-hidden="true">
+				    <section class="">
+				        <h1 id="how-do-programs-work-">How do Programs Work?</h1>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <p>Programs execute and pass data
+				            <br> around and present them.
+				            <img src="imgs/fig-1.jpg" alt="center 100%"></p>
+				        <aside class="notes">
+				            <p>Whether it is your computer, or your mobile device even the server, they are all computers that execute commands and do something with some data and present the result to you.</p>
+				        </aside>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" hidden="" aria-hidden="true">
+				    <section id="fig-2" class="">
+				        <p>Have a closer look at one single machine
+				            <img src="imgs/fig-2.jpg" alt="center 100%">
+				            <!-- -->
+				        </p>
+				        <aside class="notes">
+				            <p>As you can see, we have source code on the left hand side, and the CPU and Memory on the other side. From source code to execution, there different types of languages, compiled languages, interpreted languages or hybrid of both. I'll talk about the difference later. </p>
+				            <p>Runtime means when the program is being executed.</p>
+				            <p>When we talk about languages in computer science, the languages that are closer to the hardware is called low level, you know, like the 0s and 1s. On the other hand, the high level languages are more similar to English language, more hunam-readable and the structure of the code is more understandable to human. And most of the developers write programs using high-level language. The "low" refers to small or little amount of abstraction between the language and the machine language.
+				                <code>go down to next page</code></p>
+				        </aside>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <p><img src="imgs/fig-3.jpg" alt="center 100%"></p>
+				        <aside class="notes">
+				            <p>Here's an example of high level, low level and machine code. The right side is the hexadecimal representation. Hexadecimal is a convenient way to express binary numbers</p>
+				        </aside>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <h2 id="examples-of-programming-languages">Examples of programming languages</h2>
+				        <table>
+				            <thead>
+				                <tr>
+				                    <th style="text-align:center">Low</th>
+				                    <th style="text-align:center">Middle</th>
+				                    <th style="text-align:center">High</th>
+				                </tr>
+				            </thead>
+				            <tbody>
+				                <tr>
+				                    <td style="text-align:center">Assembler</td>
+				                    <td style="text-align:center">C</td>
+				                    <td style="text-align:center">Java, C#</td>
+				                </tr>
+				                <tr>
+				                    <td style="text-align:center">Forth</td>
+				                    <td style="text-align:center">C++</td>
+				                    <td style="text-align:center">JavaScript, Python</td>
+				                </tr>
+				            </tbody>
+				        </table>
+				        <aside class="notes">
+				            <p>They are not absolute though.</p>
+				        </aside>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" hidden="" aria-hidden="true">
+				    <section class="">
+				        <h2 id="compiled-vs-interpreted">Compiled VS. Interpreted</h2>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <p><img src="imgs/fig-2.jpg" alt="center 100%"></p>
+				        <aside class="notes">
+				            <h6 id="interpreted-language">Interpreted Language</h6>
+				            <p>The source code is read by another program called "Interpreter", which reads the source code line by line, and tells the computer to do what it needs to do. If your goal is to get the source code, interpreted language's source code is always available if it is run on your machine. For example, javascript in the browser. </p>
+				            <h6 id="compiled-language">Compiled Language</h6>
+				            <p>Compiled language such as C, is translated in to machine code, before the program is executed. Thus when you run the program, computer can load the code in the memory and understand what it needs to do.</p>
+				        </aside>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <h3 id="compiled">Compiled</h3>
+				        <ul>
+				            <li>Source code translated before execution</li>
+				            <li>Compiled code is run by the user</li>
+				            <li>Need to build every time you modify the source code</li>
+				        </ul>
+				        <h3 id="interpreted">Interpreted</h3>
+				        <ul>
+				            <li>Source code gets run directly</li>
+				            <li>Code is translated when being excuted</li>
+				            <li>Less efficient when running, but easier to develop</li>
+				        </ul>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <p></p>
+				        <div class="col-wrap">
+				            <p></p>
+				            <aside>
+				                <img src="imgs/jvm-compile.png" alt="center 100%">
+				            </aside>
+				            <aside>
+				                <h3>Example of Hybrid</h3>
+				                <ul>
+				                    <li>Source code is compiled to bytecode</li>
+				                    <li>JVM execuses bytecode</li>
+				                    <li>CPU gets instructions</li>
+				                </ul>
+				            </aside>
+				        </div>
+				        <small><a href="http://www.braveclojure.com/assets/images/cftbat/java/jvm-compile.png">http://www.braveclojure.com/assets/images/cftbat/java/jvm-compile.png</a></small>
+				        <aside class="notes">
+				            <h6 id="hybrid-language">Hybrid Language</h6>
+				            <p>A language can be both interpreted and compiled. For example, After the source code is interpreted, it is compiled before executing. Or it is compiled, but another interpreter reads the compiled code before sending instructions to CPU.</p>
+				            <p>It is possible to change a software's behavior dynamically when it's running, by overloading libraries, intercepting the address, hooking into the process.</p>
+				            <p>But you need to understand there are different phases where we can do different things.</p>
+				        </aside>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" hidden="" aria-hidden="true">
+				    <section class="">
+				        <!-- *template: gaia -->
+				        <h1 id="what-is-reverse-engineering-">What is reverse engineering?</h1>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <blockquote>
+				            <p>Reverse engineering is the processes of extracting knowledge or design information from anything man-made and re-producing it or re-producing anything based on the extracted information.</p>
+				            <p><small><em>-- Wikipedia <a href="https://en.wikipedia.org/wiki/Reverse_engineering">https://en.wikipedia.org/wiki/Reverse_engineering</a></em></small></p>
+				        </blockquote>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <blockquote>
+				            <p>The process often involves disassembling something and analyzing its components and workings in detail.</p>
+				            <p><small><em>-- Wikipedia <a href="https://en.wikipedia.org/wiki/Reverse_engineering">https://en.wikipedia.org/wiki/Reverse_engineering</a></em></small></p>
+				        </blockquote>
+				        <aside class="notes">
+				            <p>Reverse engineering, also called back engineering, is the processes of extracting knowledge or design information from anything man-made and re-producing it or re-producing anything based on the extracted information.The process often involves disassembling something (a mechanical device, electronic component, computer program, or biological, chemical, or organic matter) and analyzing its components and workings in detail.</p>
+				        </aside>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="past" hidden="" aria-hidden="true" display: none;">
+				    <h1 id="it-is-hacking-anyway">It is Hacking, anyway</h1>
+				    <h3 id="so-don-t-forget-the-concept-of-ethical-hacking-we-ve-learned-">So don't forget the concept of ethical hacking we've learned.</h3>
+				</section>
+				<section data-charset="iso-8859-15" class="past" hidden="" aria-hidden="true" display: none;">
+				    <h2 id="purpose-of-reverse-engineering">Purpose of Reverse Engineering</h2>
+				    <ul>
+				        <li>Debugging</li>
+				        <li>Security evaluation</li>
+				        <li>Recover source code</li>
+				        <li>Learning</li>
+				        <li>Enhancement(Add feature, fix bug)</li>
+				        <li>Black Hat Hacking</li>
+				    </ul>
+				    <aside class="notes">
+				        <ul>
+				            <li>White/Gray Hat: bounty program</li>
+				            <li>Stealing other app's feature (when you don't know how to do it)</li>
+				            <li>Piracy (Crack Paid Apps)</li>
+				            <li>Calling private methods (prohibited by Apple, e.g. making calls and sending messages)</li>
+				            <li>Add backdoor stealing data</li>
+				            <li>Modify Game/App data or behavior</li>
+				        </ul>
+				    </aside>
+				</section>
+				<section data-charset="iso-8859-15" class="past" hidden="" aria-hidden="true" display: none;">
+				    <h2 id="what-is-our-target-">What is our target?</h2>
+				    <p>Basic</p>
+				    <ul>
+				        <li>Decrypted code</li>
+				        <li>Decompiled code</li>
+				    </ul>
+				    <p>Advanced</p>
+				    <ul>
+				        <li>Inject code in runtime - change software's behavior
+				            <!-- - Get resources e.g. Video/Audio -->
+				            Note:</li>
+				        <li>Get secret data from software e.g. API keys for OAuth</li>
+				    </ul>
+				</section>
+				<section data-charset="iso-8859-15" class="past" hidden="" aria-hidden="true" display: none;">
+				    <h2 id="keep-in-mind">Keep in Mind</h2>
+				    <ul>
+				        <li>You can reverse engineer anything</li>
+				        <li>Never expect to hide your secrets in your product</li>
+				        <li>Ethical concerns</li>
+				    </ul>
+				</section>
+				<section data-charset="iso-8859-15" class="past" hidden="" aria-hidden="true" display: none;">
+				    <h2 id="several-phases">Several phases</h2>
+				    <h4 id="in-reverse-engineering">in Reverse Engineering</h4>
+				    <ul>
+				        <li>Knowledge</li>
+				        <li>Runtime Analysis/Code injection</li>
+				        <li>Debugging</li>
+				        <li>Disassemble/decompile</li>
+				        <li>Recompile</li>
+				    </ul>
+				</section>
+				<section data-charset="iso-8859-15" class="past" hidden="" aria-hidden="true" display: none;">
+				    <h2 id="knowledge">Knowledge</h2>
+				    <ul>
+				        <li>Understand hardware, CPU, RAM, etc.</li>
+				        <li>Understand the file structure</li>
+				        <li>Experience in software development</li>
+				        <li>Programming language</li>
+				        <li>Tools</li>
+				        <li>Searching; Trial and errorr; Never give up</li>
+				    </ul>
+				</section>
+				<section data-charset="iso-8859-15" class="past" hidden="" aria-hidden="true" display: none;">
+				    <h2 id="let-s-look-at-some-br-compiled-program-first">Let's look at some <br>Compiled Program first</h2>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" hidden="" aria-hidden="true">
+				    <section class="">
+				        <h2 id="installation-file-for-ios-and-android">Installation file for iOS and Android</h2>
+				        <p>you can easily get these files</p>
+				        <ul>
+				            <li><code>.ipa</code> for iOS: from iTunes App Store</li>
+				            <li><code>.apk</code> for android: from Google Play or other 3rd party stores</li>
+				        </ul>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <h2 id="peek-into-the-package">Peek into the package</h2>
+				        <blockquote>
+				            <p>The Installation package is usually a zip file. </p>
+				        </blockquote>
+				        <ul>
+				            <li>Just change the extension to <code>.zip</code></li>
+				            <li>And unzip it.</li>
+				        </ul>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <h2 id="the-package-contents">The package contents</h2>
+				        <ul>
+				            <li>Media assets are usually instantly available</li>
+				            <li>Some XML (<code>manifest</code> or <code>plist</code>) for software configurations</li>
+				            <li>Compiled code/ binary files / executable</li>
+				        </ul>
+				        <aside class="notes">
+				            <h2 id="android-files">Android Files</h2>
+				            <ul>
+				                <li><code>manifest</code> </li>
+				                <li><code>dex</code></li>
+				                <li><code>smali</code>: a readable form of Android bytecode</li>
+				                <li>binaries</li>
+				            </ul>
+				            <h2 id="ios-files">iOS Files</h2>
+				            <ul>
+				                <li><code>.plist</code></li>
+				                <li>executable</li>
+				                <li>dylib</li>
+				                <li>Assets (images, audio/videos)</li>
+				            </ul>
+				        </aside>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" hidden="" aria-hidden="true">
+				    <section class="">
+				        <h2 id="type-of-tools">Type of tools</h2>
+				        <ul>
+				            <li>disassembler : binary --&gt; assembly</li>
+				            <li>decompiler : binary --&gt; source code</li>
+				            <li>debugger (dynamic analysis)
+				                <ul>
+				                    <li>Inspect the program while it is running</li>
+				                </ul>
+				            </li>
+				        </ul>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <h3 id="disassembler-binary-assembly">disassembler :  binary --&gt; assembly</h3>
+				        <blockquote>
+				            <p>Basically, the job of a disassembler is very simple: it just maps hexadecimal numbers to instruction mnemonics. The output of such a basic disassembler is a listing with instructions. </p>
+				        </blockquote>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <h3 id="decompiler-binary-source-code">decompiler : binary --&gt; source code</h3>
+				        <blockquote>
+				            <p>A decompiler is a computer program that takes an executable file as input, and attempts to create a high level source file which can be recompiled successfully. It is therefore the opposite of a compiler, which takes a source file and makes an executable.</p>
+				        </blockquote>
+				        <aside class="notes">
+				            <p>There are some limitations for the decompiler to recover the source code 100%. Because some imformation was lost in the compilation process, such as meaningful variable/class/method names.</p>
+				        </aside>
+				    </section>
+				    <section class="future" aria-hidden="true">
+				        <h3 id="debugger-dynamic-analysis-">debugger (dynamic analysis)</h3>
+				        <p>Debuggers offer sophisticated functions such as:</p>
+				        <ul>
+				            <li>running a program step by step, </li>
+				            <li>stopping (breaking) at some event or specified instruction by means of a breakpoint, and tracking the <code>values</code> of variables.</li>
+				            <li>Some debuggers have the ability to modify program state while it is running.</li>
+				        </ul>
+				        <aside class="notes">
+				            <p>(pausing the program to examine the current state)</p>
+				        </aside>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="past" hidden="" aria-hidden="true" display: none;">
+				    <h2 id="reference-a-long-list-of-tools">Reference: A long list of tools</h2>
+				    <ul>
+				        <li>MobileApp Pentest Cheatsheet <a href="https://github.com/tanprathan/MobileApp-Pentest-Cheatsheet">https://github.com/tanprathan/MobileApp-Pentest-Cheatsheet</a></li>
+				        <li>Tools for iOS <a href="http://iphonedevwiki.net/index.php/Reverse_Engineering_Tools">http://iphonedevwiki.net/index.php/Reverse_Engineering_Tools</a></li>
+				    </ul>
+				    <aside class="notes">
+				        <p>These are two lists of tools including all the types I mentioned above. If you are interested in it you may find it a good point to start.</p>
+				    </aside>
+				</section>
+				<section data-charset="iso-8859-15" class="past" hidden="" aria-hidden="true" display: none;">
+				    <h1 id="demo-time-">Demo time!</h1>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" hidden="" aria-hidden="true" style="top: 0px; display: none;">
+				    <section class="" style="top: 48px; display: none;">
+				        <h1 id="android-demo">Android Demo</h1>
+				        <p><img src="imgs/android.png" alt="android"></p>
+				    </section>
+				    <section class="future" aria-hidden="true" display: none;">
+				        <h2 id="tools-for-android-">Tools for android:</h2>
+				        <ul>
+				            <li>JEB <a href="https://www.pnfsoftware.com">https://www.pnfsoftware.com</a></li>
+				            <li>Bytecodeviewer</li>
+				            <li>Apktool <a href="https://ibotpeaches.github.io/Apktool/">https://ibotpeaches.github.io/Apktool/</a></li>
+				            <li>dex2jar <a href="https://github.com/pxb1988/dex2jar">https://github.com/pxb1988/dex2jar</a></li>
+				            <li>JD-GUI <a href="http://jd.benow.ca">http://jd.benow.ca</a></li>
+				            <li>jadx <a href="https://github.com/skylot/jadx">https://github.com/skylot/jadx</a></li>
+				            <li>ADBI or FRIDA (Dynamic Patching) <a href="https://github.com/crmulliner/adbi">https://github.com/crmulliner/adbi</a> <a href="https://www.frida.re/docs/android/">https://www.frida.re/docs/android/</a></li>
+				        </ul>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" hidden="" aria-hidden="true" style="top: 0px; display: none;">
+				    <section class="" style="top: 123.5px; display: none;">
+				        <h3 id="workflow">Workflow</h3>
+				        <ul>
+				            <li>Start from an <code>.apk</code></li>
+				            <li>Disassemble-decompile-debug-recompile,
+				                <br>all-in-one solution
+				                <ul>
+				                    <li><code>JEB</code></li>
+				                    <li><code>Bytecodeviewer</code></li>
+				                    <li><code>jadx</code></li>
+				                </ul>
+				            </li>
+				        </ul>
+				        <aside class="notes">
+				            <p>These applications usually bundles all kinds of the disassemble or</p>
+				        </aside>
+				    </section>
+				    <section class="future" aria-hidden="true" style="top: 123.5px; display: none;">
+				        <h3 id="alternatively-use-these-tools-separately-">Alternatively Use these tools separately:</h3>
+				        <ul>
+				            <li><code>IDA</code> disassembler to analyze the assembly code</li>
+				            <li><code>apktool</code> to get <code>.smali</code> code</li>
+				            <li><code>dex2jar</code> to convert <code>.dex</code> file to <code>.jar</code> which contains <code>.class</code> files</li>
+				            <li><code>JD-GUI</code> to displays Java source codes of <code>.class</code> files</li>
+				            <li><code>jad</code> to generate <code>.java</code> file from <code>.class</code> file</li>
+				        </ul>
+				        <aside class="notes">
+				            <ul>
+				                <li><code>.smali</code> is a human-friendly form of assembly</li>
+				                <li><code>.java</code> is the extension for Java source code</li>
+				                <li><code>.class</code> is the compiled java bytecode</li>
+				                <li><code>.jar</code> is a package that contains <code>.class</code> files and other resources</li>
+				            </ul>
+				        </aside>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" style="top: 0px; display: none;" data-previous-indexv="5" hidden="" aria-hidden="true">
+				    <section class="past" hidden="" aria-hidden="true" style="top: 223px; display: none;">
+				        <h2 id="apktool-demo">Apktool demo</h2>
+				        <pre><code class="lang-shell">$ # to decompile an apk
+				$ apktool d example.apk
+				$ # to recompile one
+				$ akptool b example
+				</code></pre>
+				    </section>
+				    <section class="past" hidden="" aria-hidden="true" style="top: 0px; display: none;">
+				        <h3 id="apktool-decompile">Apktool decompile</h3>
+				        <p><img src="imgs/apktool-decompile.png" alt="apktool decompile"></p>
+				    </section>
+				    <section class="past" hidden="" aria-hidden="true" style="top: 24px; display: none;">
+				        <h3 id="apktool-decompiled-package-contents">Apktool decompiled package contents</h3>
+				        <p><img src="imgs/apk-package.png" alt="apktool package content"></p>
+				    </section>
+				    <section class="past" style="top: 301.5px; display: none;" hidden="" aria-hidden="true">
+				        <h3 id="apktool-decompiled-package-smali-">Apktool decompiled package <code>.smali</code></h3>
+				    </section>
+				    <section class="past" style="top: 0px; display: none;" hidden="" aria-hidden="true">
+				        <p><img src="imgs/apk-smali.png" alt="apk smali"></p>
+				    </section>
+				    <section class="" style="top: 0px; display: none;" aria-hidden="true">
+				        <h3 id="apktool-decompile">Apktool decompile</h3>
+				        <p><img src="imgs/akptool-recompile.png" alt=""></p>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="past" style="top: 150px; display: none;" hidden="" aria-hidden="true">
+				    <h2 id="-dex2jar-demo"><code>dex2jar</code> demo</h2>
+				    <p>Convert <code>.dex</code> to <code>.class</code> files, zipped in <code>.jar</code> file</p>
+				    <pre><code class="lang-bash hljs">$ dex2jar path/to/your.apk
+				<span class="hljs-comment"># -&gt; ./path-output-dex2jar.jar</span>
+				</code></pre>
+				    <p><img src="imgs/dex2jar.png" alt="dex2jar-demo"></p>
+				    <aside class="notes"><pre><code class="lang-bash hljs">dex2jar /Users/windd/Documents/develop/rev-eng-presentation/Reverse\ Engineering/apk/your.apk
+				</code></pre>
+				    </aside>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" style="top: 0px; display: none;" data-previous-indexv="3" hidden="" aria-hidden="true">
+				    <section class="past" style="top: 170px; display: none;" hidden="" aria-hidden="true">
+				        <h2 id="jeb-demo">JEB demo</h2>
+				        <ul>
+				            <li>open <code>.apk</code> directly</li>
+				            <li>or <code>.dex</code></li>
+				            <li>the demo version is limited</li>
+				            <li>the full version contains more features</li>
+				        </ul>
+				        <aside class="notes">
+				            <ul>
+				                <li>Such as recompile</li>
+				                <li>export decompiled code</li>
+				                <li>combine dex files</li>
+				                <li>debugging</li>
+				            </ul>
+				        </aside>
+				    </section>
+				    <section class="past" style="top: 0px; display: none;" hidden="" aria-hidden="true">
+				        <p><img src="imgs/JEB.png" alt="jeb demo"></p>
+				        <aside class="notes">
+				            <p>On the left you can see the package names, class names and some Constant names are restored. </p>
+				            <p>On the right panel, are the assembly code.</p>
+				        </aside>
+				    </section>
+				    <section class="past" style="top: 43.5px; display: none;" hidden="" aria-hidden="true">
+				        <p><img src="imgs/JEB-hex-string.png" alt="jeb demo"></p>
+				        <aside class="notes">
+				            <p>It also has hex viewer and a panel for strings found in the source code. This is convenient when you want to quickly find something like a log message or an url.</p>
+				        </aside>
+				    </section>
+				    <section class="" style="top: 42.5px; display: none;" aria-hidden="true">
+				        <p><img src="imgs/JEB-obfuscation.png" alt="jeb demo"></p>
+				        <aside class="notes">
+				            <p>Notice that in the left column, the package names is abcd... They don't look as meaningful as the other ones. This is called Obfuscation, we'll discuss it later.</p>
+				        </aside>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" style="top: 0px; display: none;" data-previous-indexv="1" hidden="" aria-hidden="true">
+				    <section class="past" hidden="" aria-hidden="true" style="top: 246px; display: none;">
+				        <h2 id="jd-gui-demo">JD-GUI demo</h2>
+				        <p>open <code>.jar</code> in JD-GUI, inspect the <code>.class</code> files</p>
+				        <ul>
+				            <li>search for vars/methods/class...</li>
+				        </ul>
+				    </section>
+				    <section class="" style="top: 11.5px; display: none;" aria-hidden="true">
+				        <p><img src="imgs/fig-jd-gui-decompiled-vs-source.png" alt="JD GUI demo"></p>
+				        <aside class="notes">
+				            <p>On the left is the decompiled source code. On the right is the real source code. Since it's a simple class, the result is pretty closed to the real source code.</p>
+				        </aside>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" style="top: 0px; display: none;" data-previous-indexv="2" hidden="" aria-hidden="true">
+				    <section class="past" hidden="" aria-hidden="true" style="top: 302px; display: none;">
+				        <h2 id="jadx-demo">jadx demo</h2>
+				    </section>
+				    <section class="past" style="top: 12px; display: none;" hidden="" aria-hidden="true">
+				        <p><img src="imgs/jadx.png" alt="jadx demo"></p>
+				        <aside class="notes">
+				            <p>This is an .apk I got from Professor. Mamoun says this is from one of his student. And he wants me to figure out what this app is doing.</p>
+				        </aside>
+				    </section>
+				    <section class="" style="top: 0px; display: none;" aria-hidden="true">
+				        <h3 id="search-for-string">Search for String</h3>
+				        <p><img src="imgs/jadx-2.png" alt="jadx-2"></p>
+				        <aside class="notes">
+				            <p>Well, you see, with the decompiler, you get a very good copy of the source code, only with parts of the variables in some ambiguous names. </p>
+				            <p>At this point, it really depends on my experience in software development to understand the code. Well, I am not an android developer so I can only tell that, the code consists of two part, one is a log class, the other is a Patch loader.</p>
+				            <p>I am not familiar with libraries on android platform. But by searching the class names, I found these class are from a tool called instant-run, which lets you apply changes without re-build a new apk file. </p>
+				            <p>So just like the name of the file suggests, this app is for dynamically loading modified part of source code and printing log message. So it is just a debugging app.</p>
+				        </aside>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="past" style="top: 273.5px; display: none;" hidden="" aria-hidden="true">
+				    <h3 id="enough-android">Enough Android</h3>
+				    <h2 id="let-s-move-on-to-ios">Let's move on to iOS</h2>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" style="top: 0px; display: none;" data-previous-indexv="1" hidden="" aria-hidden="true">
+				    <section class="past" hidden="" aria-hidden="true" style="top: 68px; display: none;">
+				        <!-- *template: gaia -->
+				        <h2 id="ios-demo">iOS Demo</h2>
+				        <p><img src="imgs/ios.png" alt="ios"></p>
+				    </section>
+				    <section class="" style="top: 103.5px; display: none;" aria-hidden="true">
+				        <h3 id="tools-for-ios">Tools for iOS</h3>
+				        <ul>
+				            <li>IDA <a href="https://www.hex-rays.com/products/ida/">https://www.hex-rays.com/products/ida/</a></li>
+				            <li>Hopper <a href="https://www.hopperapp.com">https://www.hopperapp.com</a></li>
+				            <li>Cycript (read as ssscript) <a href="http://www.cycript.org">http://www.cycript.org</a></li>
+				            <li>dumpdecrypted <a href="https://github.com/stefanesser/dumpdecrypted">https://github.com/stefanesser/dumpdecrypted</a></li>
+				            <li>class dump</li>
+				            <li>Charles - MITM for SSL <a href="https://www.charlesproxy.com">https://www.charlesproxy.com</a></li>
+				        </ul>
+				        <!--
+				- SSL pinning
+				- cocoapods-keys (
+				- https://github.com/orta/cocoapods-keys
+				  -->
+				        <!-- - http://www.jianshu.com/p/bf8e9e123ad0 -->
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="past" style="top: 250px; display: none;" hidden="" aria-hidden="true">
+				    <!-- *template: invert -->
+				    <h2 id="reason-i-am-not-br-doing-a-real-time-demo">Reason I am not <br>doing a real-time demo</h2>
+				    <h4 id="it-requires-jailbroken-device-br-which-i-am-not-willing-to-do-on-my-personal-device-">It requires jailbroken device, <br> which I am not willing to do on my personal device.</h4>
+				</section>
+				<section data-charset="iso-8859-15" class="past" style="top: 302px; display: none;" hidden="" aria-hidden="true">
+				    <h2 id="part-i-static-binary-analysis">Part I. Static Binary Analysis</h2>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" style="top: 0px; display: none;" data-previous-indexv="1" hidden="" aria-hidden="true">
+				    <section class="past" hidden="" aria-hidden="true" style="top: 190px; display: none;">
+				        <h2 id="ida-hopper-demo">IDA &amp; Hopper demo</h2>
+				        <ul>
+				            <li>open <code>.ipa</code> with IDA or Hopper</li>
+				            <li>Browsing assembly code in multiple views (graph, steps, method names, etc.)</li>
+				            <li>Find the strings you are interested</li>
+				        </ul>
+				    </section>
+				    <section class="" style="top: 207.5px; display: none;" aria-hidden="true">
+				        <h3 id="pricing">Pricing</h3>
+				        <blockquote>
+				            <p>IDA Starter Licenses start at 589 USD or 529 EUR. IDA Professional Licenses start at 1129 USD / 1019 EUR.</p>
+				            <p>Hopper Disassembler v4 - Personal License $99.00</p>
+				        </blockquote>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" style="top: 0px; display: none;" data-previous-indexv="6" hidden="" aria-hidden="true">
+				    <section class="past" hidden="" aria-hidden="true" style="top: 302px; display: none;">
+				        <h2 id="ida">IDA</h2>
+				    </section>
+				    <section class="past" hidden="" aria-hidden="true" style="top: 2.5px; display: none;">
+				        <p><img src="imgs/ida.png" alt="ida demo"></p>
+				    </section>
+				    <section class="past" hidden="" aria-hidden="true" style="top: 302px; display: none;">
+				        <!-- *template: gaia -->
+				        <h2 id="hopper">Hopper</h2>
+				    </section>
+				    <section class="past" hidden="" aria-hidden="true" style="top: 0px; display: none;">
+				        <!-- *template: fullscreen-img -->
+				        <!-- size: B2 -->
+				        <p><img src="https://www.hopperapp.com/Screenshots/hopv4-modes-mini@2x.jpg" alt="bg"></p>
+				    </section>
+				    <section class="past" hidden="" aria-hidden="true" style="top: 256px; display: none;">
+				        <h2 id="disassemblers">Disassemblers</h2>
+				        <p>Require understanding of assembly language to analyze in depth.</p>
+				        <p>Maybe not.</p>
+				    </section>
+				    <section class="past" hidden="" aria-hidden="true" style="top: 255.5px; display: none;">
+				        <h3 id="reverse-engineering-ios-apps">Reverse-Engineering iOS Apps</h3>
+				        <p>Conrad Kramer, Sep 7 2015</p>
+				        <p><small><a href="https://realm.io/news/conrad-kramer-reverse-engineering-ios-apps-lyft/">Source</a></small></p>
+				    </section>
+				    <section class="" style="top: 6.5px; display: none;" aria-hidden="true">
+				        <p><img src="imgs/ida-demo.png" alt="ida demo"></p>
+				        <aside class="notes">
+				            <p>Such as what he did in the picture, he didn't read the whole code, but searching for useful strings and he was able to figure out what he needs. Although I think this still requires you to have enough experience in software development, if not reverse engineering.</p>
+				        </aside>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="past" style="top: 302px; display: none;" hidden="" aria-hidden="true">
+				    <h2 id="part-ii-dynamic-runtime-analysis">Part II. Dynamic Runtime Analysis</h2>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" style="top: 0px; display: none;" data-previous-indexv="1" hidden="" aria-hidden="true">
+				    <section class="past" style="top: 148px; display: none;" hidden="" aria-hidden="true">
+				        <h2 id="cyscript">Cyscript</h2>
+				        <h4 id="code-injection">Code Injection</h4>
+				        <ul>
+				            <li>Interact with a running app</li>
+				            <li>Get all the instances</li>
+				            <li>Run your code to get data or dynamically modify the app</li>
+				        </ul>
+				        <p><small>*If you use with your own app (which you have the source), you can embed this tool in your code and debug easier.</small></p>
+				        <aside class="notes">
+				            <p>Cycript allows you to explore and modify running apps on iOS or macOS with an interactive console.</p>
+				        </aside>
+				    </section>
+				    <section class="" style="top: 6.5px; display: none;" aria-hidden="true">
+				        <p><img src="imgs/cyscript.png" alt="cyscript"></p>
+				        <aside class="notes">
+				            <p>This is a screenshot of, running cyscript and connected to a jailbroken iPhone. After using some plugin called <code>dumpdecrypted</code>, cyscript successfully hooked the <code>dumpdecrypted</code> library to the process of the app, and decrypted all the frameworks the app is using which contains important information.</p>
+				        </aside>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" style="top: 0px; display: none;" data-previous-indexv="7" hidden="" aria-hidden="true">
+				    <section class="past" hidden="" aria-hidden="true" style="top: 45px; display: none;">
+				        <h2 id="charles-demo">Charles Demo</h2>
+				        <ul>
+				            <li>Get your IP Address on your computer</li>
+				            <li>Set your IP as proxy on iPhone, in Settings on Port 8888</li>
+				            <li>Allow connection request from Charles</li>
+				            <li>Enable HTTPS</li>
+				            <li>Proxy -&gt; SSL Proxy Setting</li>
+				            <li>Download the Charles cert, go to Help &gt; SSL Proxying &gt; Install Charles Root Certificate on a Mobile Device or Remote Browser</li>
+				        </ul>
+				        <p><em># MITM attack #</em></p>
+				    </section>
+				    <section class="past" hidden="" aria-hidden="true" style="top: 0px; display: none;">
+				        <p>Encrypted contents (Gibberish) due to HTTPS</p>
+				        <p><img src="imgs/screenshots/Charles Demo No SSL Screen Shot.png" alt=""></p>
+				    </section>
+				    <section class="past" hidden="" aria-hidden="true" style="top: 9px; display: none;">
+				        <p>Charles certificate installed
+				            <img src="imgs/screenshots/Charles Custom Cert. Screen Shot 2017-03-11 at 5.00.09 AM.png" alt=""></p>
+				    </section>
+				    <section class="past" hidden="" aria-hidden="true" style="top: 0px; display: none;">
+				        <p>MITM Attack
+				            <img src="imgs/screenshots/Charles-license.png" alt=""></p>
+				    </section>
+				    <section class="past" style="top: 0px; display: none;" hidden="" aria-hidden="true">
+				        <p><img src="imgs/screenshots/Charles SSL Success Screen Shot.png" alt=""></p>
+				        <aside class="notes">
+				            <p>The default way iOS SSL connections work is as follows. The client makes a connection to the server and the server responds with its SSL certificate. If that certificate was issued by a Certificate Authority that is trusted by the OS, then the connection is allowed. All data sent through this connection is then encrypted with the serverâs public key. The part that is of interest to us is âtrust.â For an attacker to perform a âman in the middleâ attack, the mobile device would have to trust the attackerâs certificate. It is very unlikely that the attacker possesses a trusted certificate and therefore this is normally not an issue. However SSL weaknesses have happened before and using SSL Pinning can mitigate this possibility.</p>
+				        </aside>
+				    </section>
+				    <section class="past" hidden="" aria-hidden="true" style="top: 0px; display: none;">
+				        <h2 id="however">However</h2>
+				        <ul>
+				            <li>Does not work for all SSL (Certification Pinning)</li>
+				        </ul>
+				        <p><img src="imgs/screenshots/CA not trusted.png" alt="">
+				            <img src="imgs/screenshots/Charles Cert. Pinning Failure Screen Shot.png" alt=""></p>
+				    </section>
+				    <section class="past" hidden="" aria-hidden="true" style="top: 176px; display: none;">
+				        <h2 id="ssl-pinning">SSL Pinning</h2>
+				        <blockquote>
+				            <p>SSL Pinning is making sure the client checks the server's certificate against a known copy of that certificate. Simply bundle your server's SSL certificate inside your application, and make sure any SSL request first validates that the server's certificate exactly matches the bundle's certificate.
+				                <small><a href="https://possiblemobile.com/2013/03/ssl-pinning-for-increased-app-security/">https://possiblemobile.com/2013/03/ssl-pinning-for-increased-app-security/</a></small></p>
+				        </blockquote>
+				    </section>
+				    <section class="" aria-hidden="true" style="top: 131px; display: none;">
+				        <h2 id="however-however">However, however</h2>
+				        <ul>
+				            <li>If the application can access it, you can see it, too. </li>
+				            <li>(Jailbreak/root your device, ) inject code in the running app, and print whatever data you need. (for example, some API key) or
+				            </li>
+				            <li>Patch the source code, remove the part of code that checks the certificate</li>
+				        </ul>
+				        <p><em># Code Injection #</em></p>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="past" style="top: 147px; display: none;" hidden="" aria-hidden="true">
+				    <h2 id="counter-measurements-to-reverse-engineering">Counter-measurements to Reverse engineering</h2>
+				    <ul>
+				        <li>Don't consider anything secret that ships to your customer
+				            <ul>
+				                <li>e.g. asymmetric encryption, which part of the key is not include in the product.</li>
+				            </ul>
+				        </li>
+				        <li>Obfuscating code/keys
+				            <ul>
+				                <li>Spaghetti code</li>
+				            </ul>
+				        </li>
+				    </ul>
+				    <aside class="notes">
+				        <p>(not a solution when only a small piece of information is the target)</p>
+				    </aside>
+				</section>
+				<section data-charset="iso-8859-15" class="past" style="top: 182px; display: none;" hidden="" aria-hidden="true">
+				    <h2 id="counter-measurements-to-reverse-engineering-contd-">Counter-measurements to Reverse engineering(contd.)</h2>
+				    <ul>
+				        <li>Certificate pinning</li>
+				        <li>Change the behavior of the software at runtime</li>
+				        <li>Break the disassembler/code injection (detect any modification and quit if it thinks you are doing it)</li>
+				    </ul>
+				    <aside class="notes">
+				        <h2 id="download-code-from-the-server-at-runtime-dynamically-load-it-into-the-software-">Download code from the server at runtime. Dynamically load it into the software.</h2>
+				        <h2 id="obfuscation">Obfuscation</h2>
+				        <blockquote>
+				            <p>the action of making something obscure, unclear, or unintelligible.</p>
+				        </blockquote>
+				    </aside>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" style="top: 0px; display: none;" data-previous-indexv="1" hidden="" aria-hidden="true">
+				    <section class="past" hidden="" aria-hidden="true" style="top: 187px; display: none;">
+				        <blockquote>
+				            <p>Putting this in the context of, "should you be storing keys in software", is more appropriate. Many companies do this. It's never a good idea. </p>
+				            <p>When developers do that, other developers can use debuggers and string searching commands to extract those keys from the running application. </p>
+				        </blockquote>
+				    </section>
+				    <section class="" aria-hidden="true" style="top: 213px; display: none;">
+				        <blockquote>
+				            <p>Many people believe that obfuscating these keys in code will help. It usually won't because you can just run a debugger and find the fully functional keys.</p>
+				            <p><small>-- <em>by John Adams of the Twitter Security Team on Quora.</em></small></p>
+				        </blockquote>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="past" style="top: 236px; display: none;" hidden="" aria-hidden="true">
+				    <h2 id="should-you-store-keys-in-your-code-">Should you store keys in your code?</h2>
+				    <h1 id="no-element-class-fragment-" class="fragment visible" data-fragment-index="0">No. <!-- --></h1>
+				    <h5 id="but-the-developers-will-do-it-anyway-element-class-fragment-" class="fragment visible" data-fragment-index="1">But the developers will do it anyway.<!-- --></h5>
+				</section>
+				<section data-charset="iso-8859-15" class="past" style="top: 169px; display: none;" hidden="" aria-hidden="true">
+				    <h2 id="obfuscation-only-delays-won-t-stop">Obfuscation only delays, won't stop</h2>
+				    <blockquote>
+				        <p> A system or component relying on obscurity may have theoretical or actual security vulnerabilities, but its owners or designers believe that if the flaws are not known, that will be sufficient to prevent a successful attack. </p>
+				        <p> <small><em>-- Wikipedia <a href="https://en.wikipedia.org/wiki/Security_through_obscurity">https://en.wikipedia.org/wiki/Security_through_obscurity</a></em></small></p>
+				    </blockquote>
+				    <aside class="notes">
+				        <p>Remember, at the end of the day, the computer still understands the code and can execute it. The hacker may only need to tamper and patch it, not fully understand it.</p>
+				    </aside>
+				</section>
+				<section data-charset="iso-8859-15" class="stack past" style="top: 0px; display: block;" data-previous-indexv="1" hidden="" aria-hidden="true">
+				    <section class="past" hidden="" aria-hidden="true" style="top: 185px; display: none;">
+				        <h2 id="tools-for-protection">Tools for Protection</h2>
+				        <ul>
+				            <li>ProGuard <a href="https://www.guardsquare.com/en/proguard">https://www.guardsquare.com/en/proguard</a>
+				                <blockquote>
+				                    <p>provides minimal protection against reverse engineering by obfuscating the names of classes, fields and methods.</p>
+				                </blockquote>
+				            </li>
+				        </ul>
+				    </section>
+				    <section class="" style="top: 186.5px; display: block;" aria-hidden="true">
+				        <h3 id="3rd-party-solutions">3rd Party Solutions</h3>
+				        <ul>
+				            <li>ARXAN <a href="https://www.arxan.com/solutions/">https://www.arxan.com/solutions/</a>
+				                <blockquote>
+				                    <p>The World's Most Comprehensive and Scalable Enterprise Solution for Application Protection, Period.</p>
+				                </blockquote>
+				            </li>
+				        </ul>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="past" style="top: 160.5px; display: block;" hidden="" aria-hidden="true">
+				    <h2 id="web">Web</h2>
+				    <p>e.g.JavaScript</p>
+				    <ul>
+				        <li>You can interact with it in the browser console.</li>
+				        <li>You have the source code <code>.js</code>, which may be obfuscated (unreadable var/method names, etc.)</li>
+				        <li>Similar procedure (runtime, source analysis)</li>
+				    </ul>
+				</section>
+				<section data-charset="iso-8859-15" class="present" style="top: 241.5px; display: block;">
+				    <h2 id="discussion">Discussion</h2>
+				    <p>Putting too much effort in making the software harder to reverse engineer, hurts your honest customer and experience, but can only <strong>slightly</strong> delay the dishonest ones. It adds difficulty to your own debugging for security issues. There is no way to prevent reverse engineering(cracking). </p>
+				</section>
+				<section data-charset="iso-8859-15" class="future" style="top: 76.5px; display: block;" hidden="" aria-hidden="true">
+				    <h2 id="regulations-and-laws">Regulations and Laws</h2>
+				    <p>in the U.S.</p>
+				    <ul>
+				        <li>Copyright law and <strong>fair use</strong>, codified at 17 U.S.C. 107;</li>
+				        <li>Trade secret law;</li>
+				        <li>The anti-circumvention provisions of the Digital Millennium Copyright Act (DMCA), codified at 17 U.S.C. section 1201;</li>
+				        <li>Contract law (EULA, TOS, NDA)</li>
+				        <li>The Electronic Communications Privacy Act, codified at 18 U.S.C. 2510 et. seq.
+				            <small><a href="https://www.eff.org/issues/coders/reverse-engineering-faq">https://www.eff.org/issues/coders/reverse-engineering-faq</a></small></li>
+				    </ul>
+				    <aside class="notes">
+				        <p>Fair Use: In terms of reverse engineering and fair use, the law tends to favor the reverser. However, negatively effecting the value of the original product will almost never result in it being categorized as "fair use." Also keep in mind that fair use does not permit breaking the user license terms.</p>
+				        <p>Contract law: if use of the software is subject to an End User License Agreement (EULA), Terms of Service notice (TOS), Terms of Use notice (TOU), Non-Disclosure Agreement (NDA), developer agreement or API agreement;</p>
+				        <p>You may waive your fair use rights in EULA.</p>
+				        <p><a href="http://www.computerworld.com/article/2585652/app-development/reverse-engineering.html">http://www.computerworld.com/article/2585652/app-development/reverse-engineering.html</a></p>
+				        <p>Reverse-engineering can also expose security flaws and questionable privacy practices. For instance, reverse-engineering of Dallas-based Digital: Convergence Corp.'s CueCat scanning device revealed that each reader has a unique serial number that allows the device's maker to marry scanned codes with user registration data and thus track each user's habits in great detailâa previously unpublicized feature.</p>
+				        <p>Recent legal moves backed by many large software and hardware makers, as well as the entertainment industry, are eroding companies' ability to do reverse-engineering.</p>
+				        <p>"Reverse-engineering is legal, but there are two main areas in which we're seeing threats to reverse-engineering," says Jennifer Granick, director of the law and technology clinic at Stanford Law School in Palo Alto, Calif. One threat, as yet untested in the courts, comes from shrink-wrap licenses that explicitly prohibit anyone who opens or uses the software from reverse-engineering it, she says.</p>
+				        <p>The other threat is from the Digital Millennium Copyright Act (DMCA), which prohibits the creation or dissemination of tools or information that could be used to break technological safeguards that protect software from being copied. Last July, on the basis of this law, San Jose-based Adobe Systems Inc. asked the FBI to arrest Dmitry Sklyarov, a Russian programmer, when he was in the U.S. for a conference. Sklyarov had worked on software that cracked Adobe's e-book file encryption.</p>
+				        <p>The fact is, even above-board reverse-engineering often requires breaking such safeguards, and the DMCA does allow reverse-engineering for compatibility purposes.</p>
+				        <p>"But you're not allowed to see if the software does what it's supposed to do," says Granick, nor can you look at it for purposes of scientific inquiry. She offers an analogy: "You have a car, but you're not allowed to open the hood."</p>
+				    </aside>
+				</section>
+				<section data-charset="iso-8859-15" class="stack future" style="top: 0px; display: block;" data-previous-indexv="2" hidden="" aria-hidden="true">
+				    <section class="past" hidden="" aria-hidden="true" style="top: 266.5px; display: none;">
+				        <!-- *template: invert -->
+				        <h2 id="disclaimer">Disclaimer</h2>
+				        <p>The sole purpose of this article is educational and for testing of your own applications. This is not intended for piracy or any other non-legal use.</p>
+				    </section>
+				    <section class="past" style="top: 0px; display: none;" hidden="" aria-hidden="true">
+				        <!-- *template: fullscreen-img -->
+				        <p><small><a href="http://opensecuritytraining.info">http://opensecuritytraining.info</a></small>
+				            <img src="imgs/open-security-training.png" alt="center 50%"></p>
+				        <aside class="notes">
+				            <p>Many videos about reverse engineering, and low level programming.</p>
+				        </aside>
+				    </section>
+				    <section class="" style="top: 208px; display: block;" aria-hidden="true">
+				        <h2 id="references-">References:</h2>
+				        <h3 id="code-source-">Code Source:</h3>
+				        <ul>
+				            <li>iOS: <a href="https://github.com/danqing/2048">https://github.com/danqing/2048</a></li>
+				            <li>Android: <a href="https://github.com/tpcstld/2048/releases">https://github.com/tpcstld/2048/releases</a></li>
+				        </ul>
+				    </section>
+				</section>
+				<section data-charset="iso-8859-15" class="future" style="top: 125.5px; display: none;" hidden="" aria-hidden="true">
+				    <h2 id="questions">Questions</h2>
+				    <ol>
+				        <li>
+				            <p>Can we trust security that relies on prevention of reverse engineering? Is it possible to prevent reverse engineering? </p>
+				        </li>
+				        <li>
+				            <p>How can we make reverse engineering harder for attacker? </p>
+				        </li>
+				        <li>
+				            <p>What is Obfuscation ? What are its drawbacks?</p>
+				        </li>
+				    </ol>
+				</section>
+				<section data-charset="iso-8859-15" class="future" style="top: 286px; display: none;" hidden="" aria-hidden="true">
+				    <h1 id="thank-you">Thank you</h1>
+				</section>
+
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				history: true,
+				slideNumber: true,
+				pdfMaxPagesPerSlide: 1,
+				backgroundTransition: 'zoom',
+				transition: 'zoom',
+
+				math: {
+			        mathjax: 'https://cdn.mathjax.org/mathjax/latest/MathJax.js',
+			        config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
+			    },
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'plugin/math/math.js', async: true },
+					{ src: 'plugin/menu/menu.js' },
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>
